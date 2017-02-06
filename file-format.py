@@ -2,11 +2,9 @@
 # -*- coding: UTF-8 -*-
 
 # Консольный клиент для open-file.ru
-# Версия 1.0
+# Версия 1.1
 # Дата релиза 2017-02-06
 
-
-import re
 import texttable as tt
 from bs4 import BeautifulSoup
 import requests
@@ -22,20 +20,17 @@ def get_html(search):
 
 def parse(html_code):
     soup = BeautifulSoup(html_code, 'html.parser')
-    data = {}
-    for tab in soup.find_all('table'):
-        for row in tab.find_all('tr'):
-            tmp = row.find_all('td')
-            if len(tmp) == 2:
-                data[re.sub(r'\s{3,}', '', tmp[0].text.strip())] = re.sub(r'\s{3,}', '', tmp[1].text.strip())
-
     result = []
     for tab in soup.find_all('table', attrs={'class': ['tbl']}):
         cols = [col.text for col in tab.find_all('th')]
         for row in tab.find_all('tr'):
             tmp = row.find_all('td')
             if len(tmp) == len(cols):
-                result.append({cols[0]: tmp[0].text.strip(), cols[1]: tmp[1].text.strip(), cols[2]: tmp[2].text.strip()})
+                result.append({
+                    cols[0]: tmp[0].text.strip(),
+                    cols[1]: tmp[1].text.strip(),
+                    cols[2]: tmp[2].text.strip()
+                })
     return result
 
 
@@ -43,8 +38,8 @@ def table_viewer(data):
     tab = tt.Texttable()
     header = ['Формат', 'Тип', 'Описание']
     tab.header(header)
-    for server in data:
-        tab.add_row(server)
+    for f in data:
+        tab.add_row(f)
     tab.set_cols_width([10, 55, 50])
     tab.set_deco(tab.HEADER | tab.VLINES)
     tab.set_chars(['-', '|', '+', '='])
